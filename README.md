@@ -28,7 +28,7 @@ If anything fails during checkout, the bot stops, saves a screenshot to `screens
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 playwright install chromium
-cp config.example.yaml config.yaml
+cp config.example.yaml config.yaml   # or start from a ready-made example in examples/
 ```
 
 1. **Add your products to `config.yaml`.** For each one you need the URL, your price caps, and CSS selectors. To find a selector, right-click the element in Chrome, choose **Inspect**, then **Copy > Copy selector**. You can also use Playwright text selectors such as `button:has-text('Add to cart')`.

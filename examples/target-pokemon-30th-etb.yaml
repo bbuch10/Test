@@ -1,0 +1,50 @@
+# Target: Pokemon TCG 30th Celebration Elite Trainer Box
+# Copy to config.yaml:  cp examples/target-pokemon-30th-etb.yaml config.yaml
+#
+# The selectors below are Target's usual data-test attributes, NOT checked against
+# this live page. Before going live, confirm them with `python -m autobuy check` and a dry run.
+#
+# Before running:
+#   - Keep your Target cart EMPTY. The total check aborts if anything else is in the cart.
+#   - In your Target account, save a default shipping address and a default card.
+
+dry_run: true
+
+# Pokemon drops at Target can sell out in minutes. 30s is the minimum the bot allows.
+poll_interval_seconds: 30
+
+budget:
+  max_total_spend: 85
+  max_orders: 1
+
+browser:
+  profile_dir: browser-profile
+  headless: false        # Target tends to block headless browsers; keep the window visible
+
+notify:
+  ntfy_topic: ""         # optional; see README
+
+products:
+  - name: Pokemon 30th Celebration ETB (Target)
+    url: https://www.target.com/p/pok-233-mon-trading-card-game-30th-celebration-elite-trainer-box/-/A-1010892076
+    # SET THESE to what you're willing to pay. The bot won't buy if Target lists it higher.
+    max_price: 59.99
+    max_total: 75.00     # leaves room for sales tax; Target ships free over $35
+
+    price_selector: "[data-test='product-price']"
+    # The "Add to cart" button for shipping. It's missing or disabled when sold out.
+    in_stock_selector: "button[data-test='shippingButton']:not([disabled])"
+
+    checkout:
+      - click: "button[data-test='shippingButton']"
+      - wait_for: "text=Added to cart"
+      - goto: "https://www.target.com/cart"
+      - click: "button[data-test='checkout-button']"
+      - wait_for: "button[data-test='placeOrderButton']"
+      # Target sometimes asks you to re-enter the card's CVV. If your dry run stops there,
+      # uncomment this and run with:  AUTOBUY_CVV=123 python -m autobuy run
+      # - fill: {selector: "input#creditCardInput-cvv", value_env: "AUTOBUY_CVV"}
+      # The checkout page's order total. Most likely selector to need fixing:
+      # inspect the "Total" amount on the checkout page during your dry run.
+      - check_total: "[data-test='cart-summary-total']"
+      - place_order: "button[data-test='placeOrderButton']"
