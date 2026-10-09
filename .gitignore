@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.venv/
+# Holds your logged-in browser sessions -- never commit it.
+browser-profile/
+config.yaml
+orders.json
+screenshots/
+.pytest_cache/

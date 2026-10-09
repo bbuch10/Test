@@ -1,0 +1,40 @@
+# Copy to config.yaml and edit. config.yaml is gitignored.
+
+# Starts in dry run: it goes through checkout and stops right before "Place order".
+# Set this to false only after a dry run has worked end to end for the product.
+dry_run: true
+
+# How often to re-check every product. Minimum 30s; be polite to the store.
+poll_interval_seconds: 120
+
+# Hard limits across ALL real orders (tracked in orders.json). Nothing is bought past these.
+budget:
+  max_total_spend: 1200
+  max_orders: 1
+
+browser:
+  profile_dir: browser-profile   # keeps your store logins; created by `python -m autobuy login`
+  headless: false                # leave false while setting up so you can watch it
+
+notify:
+  # Optional: install the ntfy app, subscribe to a hard-to-guess topic, and put it here.
+  ntfy_topic: ""
+
+products:
+  - name: Example GPU
+    url: https://www.example-store.com/product/12345
+    max_price: 999.99      # listed price must be at or below this
+    max_total: 1100.00     # final checkout total (tax + shipping) must be at or below this
+    # CSS selectors. Right-click > Inspect in your browser to find them,
+    # then run `python -m autobuy check` to confirm they work.
+    price_selector: "[data-testid='price']"
+    in_stock_selector: "button.add-to-cart:not([disabled])"
+    checkout:
+      - click: "button.add-to-cart"
+      - goto: "https://www.example-store.com/cart"
+      - click: "button:has-text('Checkout')"
+      - wait_for: "text=Review your order"
+      # Example of filling a field from an env var so secrets stay out of this file:
+      # - fill: {selector: "input[name='cvv']", value_env: "AUTOBUY_CVV"}
+      - check_total: ".order-summary .total"     # re-reads the real total; aborts if over max_total or budget
+      - place_order: "button:has-text('Place order')"  # final click; skipped in dry_run
